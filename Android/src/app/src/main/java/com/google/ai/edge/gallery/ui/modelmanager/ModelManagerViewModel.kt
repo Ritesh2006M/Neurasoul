@@ -1,19 +1,3 @@
-/*
- * Copyright 2025 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.ai.edge.gallery.ui.modelmanager
 
 import android.content.Context
@@ -73,8 +57,6 @@ import net.openid.appauth.ResponseTypeValues
 
 private const val TAG = "AGModelManagerViewModel"
 private const val TEXT_INPUT_HISTORY_MAX_SIZE = 50
-private const val MODEL_ALLOWLIST_URL =
-  "https://raw.githubusercontent.com/google-ai-edge/gallery/refs/heads/main/model_allowlist.json"
 private const val MODEL_ALLOWLIST_FILENAME = "model_allowlist.json"
 
 data class ModelInitializationStatus(
@@ -106,37 +88,17 @@ data class TokenStatusAndData(val status: TokenStatus, val data: AccessTokenData
 data class TokenRequestResult(val status: TokenRequestResultType, val errorMessage: String? = null)
 
 data class ModelManagerUiState(
-  /** A list of tasks available in the application. */
   val tasks: List<Task>,
-
-  /** A map that tracks the download status of each model, indexed by model name. */
   val modelDownloadStatus: Map<String, ModelDownloadStatus>,
-
-  /** A map that tracks the initialization status of each model, indexed by model name. */
   val modelInitializationStatus: Map<String, ModelInitializationStatus>,
-
-  /** Whether the app is loading and processing the model allowlist. */
   val loadingModelAllowlist: Boolean = true,
-
-  /** The error message when loading the model allowlist. */
   val loadingModelAllowlistError: String = "",
-
-  /** The currently selected model. */
   val selectedModel: Model = EMPTY_MODEL,
-
-  /** The history of text inputs entered by the user. */
   val textInputHistory: List<String> = listOf(),
 )
 
 data class PagerScrollState(val page: Int = 0, val offset: Float = 0f)
 
-/**
- * ViewModel responsible for managing models, their download status, and initialization.
- *
- * This ViewModel handles model-related operations such as downloading, deleting, initializing, and
- * cleaning up models. It also manages the UI state for model management, including the list of
- * tasks, models, download statuses, and initialization statuses.
- */
 @HiltViewModel
 open class ModelManagerViewModel
 @Inject
@@ -171,16 +133,11 @@ constructor(
   }
 
   fun downloadModel(task: Task, model: Model) {
-    // Update status.
     setDownloadStatus(
       curModel = model,
       status = ModelDownloadStatus(status = ModelDownloadStatusType.IN_PROGRESS),
     )
-
-    // Delete the model files first.
     deleteModel(task = task, model = model)
-
-    // Start to send download request.
     downloadRepository.downloadModel(model, onStatusUpdated = this::setDownloadStatus)
   }
 
@@ -195,13 +152,9 @@ constructor(
     } else {
       deleteDirFromExternalFilesDir(model.normalizedName)
     }
-
-    // Update model download status to NotDownloaded.
     val curModelDownloadStatus = uiState.value.modelDownloadStatus.toMutableMap()
     curModelDownloadStatus[model.name] =
       ModelDownloadStatus(status = ModelDownloadStatusType.NOT_DOWNLOADED)
-
-    // Delete model from the list if model is imported as a local model.
     if (model.imported) {
       for (curTask in TASKS) {
         val index = curTask.models.indexOf(model)
@@ -211,8 +164,6 @@ constructor(
         curTask.updateTrigger.value = System.currentTimeMillis()
       }
       curModelDownloadStatus.remove(model.name)
-
-      // Update data store.
       val importedModels = dataStoreRepository.readImportedModels().toMutableList()
       val importedModelIndex = importedModels.indexOfFirst { it.fileName == model.name }
       if (importedModelIndex >= 0) {
@@ -230,32 +181,22 @@ constructor(
 
   fun initializeModel(context: Context, task: Task, model: Model, force: Boolean = false) {
     viewModelScope.launch(Dispatchers.Default) {
-      // Skip if initialized already.
       if (
         !force &&
-          uiState.value.modelInitializationStatus[model.name]?.status ==
-            ModelInitializationStatusType.INITIALIZED
+        uiState.value.modelInitializationStatus[model.name]?.status ==
+        ModelInitializationStatusType.INITIALIZED
       ) {
         Log.d(TAG, "Model '${model.name}' has been initialized. Skipping.")
         return@launch
       }
-
-      // Skip if initialization is in progress.
       if (model.initializing) {
         model.cleanUpAfterInit = false
         Log.d(TAG, "Model '${model.name}' is being initialized. Skipping.")
         return@launch
       }
-
-      // Clean up.
       cleanupModel(task = task, model = model)
-
-      // Start initialization.
       Log.d(TAG, "Initializing model '${model.name}'...")
       model.initializing = true
-
-      // Show initializing status after a delay. When the delay expires, check if the model has
-      // been initialized or not. If so, skip.
       launch {
         delay(500)
         if (model.instance == null && model.initializing) {
@@ -265,7 +206,6 @@ constructor(
           )
         }
       }
-
       val onDone: (error: String) -> Unit = { error ->
         model.initializing = false
         if (model.instance != null) {
@@ -293,7 +233,6 @@ constructor(
         TaskType.LLM_ASK_AUDIO,
         TaskType.LLM_PROMPT_LAB ->
           LlmChatModelHelper.initialize(context = context, model = model, onDone = onDone)
-
         TaskType.TEST_TASK_1 -> {}
         TaskType.TEST_TASK_2 -> {}
       }
@@ -309,7 +248,6 @@ constructor(
         TaskType.LLM_PROMPT_LAB,
         TaskType.LLM_ASK_IMAGE,
         TaskType.LLM_ASK_AUDIO -> LlmChatModelHelper.cleanUp(model = model)
-
         TaskType.TEST_TASK_1 -> {}
         TaskType.TEST_TASK_2 -> {}
       }
@@ -320,8 +258,6 @@ constructor(
         status = ModelInitializationStatusType.NOT_INITIALIZED,
       )
     } else {
-      // When model is being initialized and we are trying to clean it up at same time, we mark it
-      // to clean up and it will be cleaned up after initialization is done.
       if (model.initializing) {
         model.cleanUpAfterInit = true
       }
@@ -329,19 +265,15 @@ constructor(
   }
 
   fun setDownloadStatus(curModel: Model, status: ModelDownloadStatus) {
-    // Update model download progress.
     val curModelDownloadStatus = uiState.value.modelDownloadStatus.toMutableMap()
     curModelDownloadStatus[curModel.name] = status
     val newUiState = uiState.value.copy(modelDownloadStatus = curModelDownloadStatus)
-
-    // Delete downloaded file if status is failed or not_downloaded.
     if (
       status.status == ModelDownloadStatusType.FAILED ||
-        status.status == ModelDownloadStatusType.NOT_DOWNLOADED
+      status.status == ModelDownloadStatusType.NOT_DOWNLOADED
     ) {
       deleteFileFromExternalFilesDir(curModel.downloadFileName)
     }
-
     _uiState.update { newUiState }
   }
 
@@ -401,8 +333,6 @@ constructor(
         connection.setRequestProperty("Authorization", "Bearer $accessToken")
       }
       connection.connect()
-
-      // Report the result.
       return connection.responseCode
     } catch (e: Exception) {
       Log.e(TAG, "$e")
@@ -412,13 +342,9 @@ constructor(
 
   fun addImportedLlmModel(info: ImportedModel) {
     Log.d(TAG, "adding imported llm model: $info")
-
-    // Create model.
     val model = createModelFromImportedModelInfo(info = info)
-
     for (task in
-      listOf(TASK_LLM_ASK_IMAGE, TASK_LLM_ASK_AUDIO, TASK_LLM_PROMPT_LAB, TASK_LLM_CHAT)) {
-      // Remove duplicated imported model if existed.
+    listOf(TASK_LLM_ASK_IMAGE, TASK_LLM_ASK_AUDIO, TASK_LLM_PROMPT_LAB, TASK_LLM_CHAT)) {
       val modelIndex = task.models.indexOfFirst { info.fileName == it.name && it.imported }
       if (modelIndex >= 0) {
         Log.d(TAG, "duplicated imported model found in task. Removing it first")
@@ -426,15 +352,13 @@ constructor(
       }
       if (
         (task == TASK_LLM_ASK_IMAGE && model.llmSupportImage) ||
-          (task == TASK_LLM_ASK_AUDIO && model.llmSupportAudio) ||
-          (task != TASK_LLM_ASK_IMAGE && task != TASK_LLM_ASK_AUDIO)
+        (task == TASK_LLM_ASK_AUDIO && model.llmSupportAudio) ||
+        (task != TASK_LLM_ASK_IMAGE && task != TASK_LLM_ASK_AUDIO)
       ) {
         task.models.add(model)
       }
       task.updateTrigger.value = System.currentTimeMillis()
     }
-
-    // Add initial status and states.
     val modelDownloadStatus = uiState.value.modelDownloadStatus.toMutableMap()
     val modelInstances = uiState.value.modelInitializationStatus.toMutableMap()
     modelDownloadStatus[model.name] =
@@ -445,8 +369,6 @@ constructor(
       )
     modelInstances[model.name] =
       ModelInitializationStatus(status = ModelInitializationStatusType.NOT_INITIALIZED)
-
-    // Update ui state.
     _uiState.update {
       uiState.value.copy(
         tasks = uiState.value.tasks.toList(),
@@ -454,8 +376,6 @@ constructor(
         modelInitializationStatus = modelInstances,
       )
     }
-
-    // Add to data store.
     val importedModels = dataStoreRepository.readImportedModels().toMutableList()
     val importedModelIndex = importedModels.indexOfFirst { info.fileName == it.fileName }
     if (importedModelIndex >= 0) {
@@ -467,16 +387,11 @@ constructor(
   }
 
   fun getTokenStatusAndData(): TokenStatusAndData {
-    // Try to load token data from DataStore.
     var tokenStatus = TokenStatus.NOT_STORED
     Log.d(TAG, "Reading token data from data store...")
     val tokenData = dataStoreRepository.readAccessTokenData()
-
-    // Token exists.
     if (tokenData != null) {
       Log.d(TAG, "Token exists and loaded.")
-
-      // Check expiration (with 5-minute buffer).
       val curTs = System.currentTimeMillis()
       val expirationTs = tokenData.expiresAtMs - 5 * 60
       Log.d(
@@ -494,17 +409,16 @@ constructor(
     } else {
       Log.d(TAG, "Token doesn't exists.")
     }
-
     return TokenStatusAndData(status = tokenStatus, data = tokenData)
   }
 
   fun getAuthorizationRequest(): AuthorizationRequest {
     return AuthorizationRequest.Builder(
-        AuthConfig.authServiceConfig,
-        AuthConfig.clientId,
-        ResponseTypeValues.CODE,
-        AuthConfig.redirectUri.toUri(),
-      )
+      AuthConfig.authServiceConfig,
+      AuthConfig.clientId,
+      ResponseTypeValues.CODE,
+      AuthConfig.redirectUri.toUri(),
+    )
       .setScope("read-repos")
       .build()
   }
@@ -520,17 +434,14 @@ constructor(
       )
       return
     }
-
     val response = AuthorizationResponse.fromIntent(dataIntent)
     val exception = AuthorizationException.fromIntent(dataIntent)
-
     when {
       response?.authorizationCode != null -> {
-        // Authorization successful, exchange the code for tokens
         var errorMessage: String? = null
         authService.performTokenRequest(response.createTokenExchangeRequest()) {
-          tokenResponse,
-          tokenEx ->
+            tokenResponse,
+            tokenEx ->
           if (tokenResponse != null) {
             if (tokenResponse.accessToken == null) {
               errorMessage = "Empty access token"
@@ -539,7 +450,6 @@ constructor(
             } else if (tokenResponse.accessTokenExpirationTime == null) {
               errorMessage = "Empty expiration time"
             } else {
-              // Token exchange successful. Store the tokens securely
               Log.d(TAG, "Token exchange successful. Storing tokens...")
               saveAccessToken(
                 accessToken = tokenResponse.accessToken!!,
@@ -566,7 +476,6 @@ constructor(
           }
         }
       }
-
       exception != null -> {
         onTokenRequested(
           TokenRequestResult(
@@ -577,7 +486,6 @@ constructor(
           )
         )
       }
-
       else -> {
         onTokenRequested(TokenRequestResult(status = TokenRequestResultType.USER_CANCELLED))
       }
@@ -598,20 +506,13 @@ constructor(
 
   private fun processPendingDownloads() {
     Log.d(TAG, "In-progress worker infos: $inProgressWorkInfos")
-
-    // Iterate through the inProgressWorkInfos and retrieve the corresponding modes.
-    // Those models are the ones that have not finished downloading.
     val models: MutableList<Model> = mutableListOf()
     for (info in inProgressWorkInfos) {
       getModelByName(info.modelName)?.let { model -> models.add(model) }
     }
-
-    // Cancel all pending downloads for the retrieved models.
     downloadRepository.cancelAll(models) {
       Log.d(TAG, "All pending work is cancelled")
-
       viewModelScope.launch(Dispatchers.IO) {
-        // Kick off downloads for these models .
         withContext(Dispatchers.Main) {
           val tokenStatusAndData = getTokenStatusAndData()
           for (info in inProgressWorkInfos) {
@@ -619,7 +520,7 @@ constructor(
             if (model != null) {
               if (
                 tokenStatusAndData.status == TokenStatus.NOT_EXPIRED &&
-                  tokenStatusAndData.data != null
+                tokenStatusAndData.data != null
               ) {
                 model.accessToken = tokenStatusAndData.data.accessToken
               }
@@ -642,29 +543,68 @@ constructor(
 
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        // Load model allowlist json.
-        Log.d(TAG, "Loading model allowlist from internet...")
-        val data = getJsonResponse<ModelAllowlist>(url = MODEL_ALLOWLIST_URL)
-        var modelAllowlist: ModelAllowlist? = data?.jsonObj
+        // Load model allowlist from JSON string
+        Log.d(TAG, "Loading model allowlist from embedded JSON...")
+        val modelAllowlistJson = """
+          {
+            "models": [
+              {
+                "name": "Gemma-3n-E2B-it-int4",
+                "modelId": "google/gemma-3n-E2B-it-litert-preview",
+                "modelFile": "gemma-3n-E2B-it-int4.task",
+                "description": "Preview version of [Gemma 3n E2B](https://ai.google.dev/gemma/docs/gemma-3n) ready for deployment on Android using the [MediaPipe LLM Inference API](https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference). The current checkpoint only supports text and vision input, with 4096 context length.",
+                "sizeInBytes": 3136226711,
+                "estimatedPeakMemoryInBytes": 5905580032,
+                "version": "20250520",
+                "llmSupportImage": true,
+                "defaultConfig": {
+                  "topK": 64,
+                  "topP": 0.95,
+                  "temperature": 1.0,
+                  "maxTokens": 4096,
+                  "accelerators": "cpu,gpu"
+                },
+                "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_ask_image"]
+              },
+              {
+                "name": "Gemma-3n-E4B-it-int4",
+                "modelId": "google/gemma-3n-E4B-it-litert-preview",
+                "modelFile": "gemma-3n-E4B-it-int4.task",
+                "description": "Preview version of [Gemma 3n E4B](https://ai.google.dev/gemma/docs/gemma-3n) ready for deployment on Android using the [MediaPipe LLM Inference API](https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference). The current checkpoint only supports text and vision input, with 4096 context length.",
+                "sizeInBytes": 4405655031,
+                "estimatedPeakMemoryInBytes": 6979321856,
+                "version": "20250520",
+                "llmSupportImage": true,
+                "defaultConfig": {
+                  "topK": 64,
+                  "topP": 0.95,
+                  "temperature": 1.0,
+                  "maxTokens": 4096,
+                  "accelerators": "cpu,gpu"
+                },
+                "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_ask_image"]
+              }
+            ]
+          }
+        """.trimIndent()
 
-        if (modelAllowlist == null) {
-          Log.d(TAG, "Failed to load model allowlist from internet. Trying to load it from disk")
-          modelAllowlist = readModelAllowlistFromDisk()
-        } else {
-          Log.d(TAG, "Done: loading model allowlist from internet")
-          saveModelAllowlistToDisk(modelAllowlistContent = data?.textContent ?: "{}")
-        }
+        val gson = Gson()
+        val type = object : TypeToken<ModelAllowlist>() {}.type
+        val modelAllowlist: ModelAllowlist? = gson.fromJson(modelAllowlistJson, type)
 
         if (modelAllowlist == null) {
           _uiState.update {
-            uiState.value.copy(loadingModelAllowlistError = "Failed to load model list")
+            uiState.value.copy(loadingModelAllowlistError = "Failed to parse model list")
           }
           return@launch
         }
 
+        Log.d(TAG, "Done: loading model allowlist from JSON")
+        saveModelAllowlistToDisk(modelAllowlistContent = modelAllowlistJson)
+
         Log.d(TAG, "Allowlist: $modelAllowlist")
 
-        // Convert models in the allowlist.
+        // Convert models in the allowlist
         TASK_LLM_CHAT.models.clear()
         TASK_LLM_PROMPT_LAB.models.clear()
         TASK_LLM_ASK_IMAGE.models.clear()
@@ -673,7 +613,6 @@ constructor(
           if (allowedModel.disabled == true) {
             continue
           }
-
           val model = allowedModel.toModel()
           if (allowedModel.taskTypes.contains(TASK_LLM_CHAT.type.id)) {
             TASK_LLM_CHAT.models.add(model)
@@ -689,17 +628,20 @@ constructor(
           }
         }
 
-        // Pre-process all tasks.
+        // Pre-process all tasks
         processTasks()
 
-        // Update UI state.
+        // Update UI state
         val newUiState = createUiState()
         _uiState.update { newUiState.copy(loadingModelAllowlist = false) }
 
-        // Process pending downloads.
+        // Process pending downloads
         processPendingDownloads()
       } catch (e: Exception) {
         e.printStackTrace()
+        _uiState.update {
+          uiState.value.copy(loadingModelAllowlistError = "Error loading model list: ${e.message}")
+        }
       }
     }
   }
@@ -726,7 +668,6 @@ constructor(
       if (file.exists()) {
         val content = file.readText()
         Log.d(TAG, "Model allowlist content from local file: $content")
-
         val gson = Gson()
         val type = object : TypeToken<ModelAllowlist>() {}.type
         return gson.fromJson<ModelAllowlist>(content, type)
@@ -735,7 +676,6 @@ constructor(
       Log.e(TAG, "failed to read model allowlist from disk", e)
       return null
     }
-
     return null
   }
 
@@ -761,15 +701,9 @@ constructor(
           ModelInitializationStatus(status = ModelInitializationStatusType.NOT_INITIALIZED)
       }
     }
-
-    // Load imported models.
     for (importedModel in dataStoreRepository.readImportedModels()) {
       Log.d(TAG, "stored imported model: $importedModel")
-
-      // Create model.
       val model = createModelFromImportedModelInfo(info = importedModel)
-
-      // Add to task.
       TASK_LLM_CHAT.models.add(model)
       TASK_LLM_PROMPT_LAB.models.add(model)
       if (model.llmSupportImage) {
@@ -778,8 +712,6 @@ constructor(
       if (model.llmSupportAudio) {
         TASK_LLM_ASK_AUDIO.models.add(model)
       }
-
-      // Update status.
       modelDownloadStatus[model.name] =
         ModelDownloadStatus(
           status = ModelDownloadStatusType.SUCCEEDED,
@@ -787,10 +719,8 @@ constructor(
           totalBytes = importedModel.fileSize,
         )
     }
-
     val textInputHistory = dataStoreRepository.readTextInputHistory()
     Log.d(TAG, "text input history: $textInputHistory")
-
     Log.d(TAG, "model download status: $modelDownloadStatus")
     return ModelManagerUiState(
       tasks = TASKS.toList(),
@@ -806,7 +736,7 @@ constructor(
         when (acceleratorLabel.trim()) {
           Accelerator.GPU.label -> Accelerator.GPU
           Accelerator.CPU.label -> Accelerator.CPU
-          else -> null // Ignore unknown accelerator labels
+          else -> null
         }
       }
     val configs: List<Config> =
@@ -833,17 +763,9 @@ constructor(
         llmSupportAudio = llmSupportAudio,
       )
     model.preProcess()
-
     return model
   }
 
-  /**
-   * Retrieves the download status of a model.
-   *
-   * This function determines the download status of a given model by checking if it's fully
-   * downloaded, partially downloaded, or not downloaded at all. It also retrieves the received and
-   * total bytes for partially downloaded models.
-   */
   private fun getModelDownloadStatus(model: Model): ModelDownloadStatus {
     var status = ModelDownloadStatusType.NOT_DOWNLOADED
     var receivedBytes = 0L
@@ -902,19 +824,16 @@ constructor(
   private fun isModelDownloaded(model: Model): Boolean {
     val downloadedFileExists =
       model.downloadFileName.isNotEmpty() &&
-        isFileInExternalFilesDir(
-          listOf(model.normalizedName, model.version, model.downloadFileName)
-            .joinToString(File.separator)
-        )
-
+              isFileInExternalFilesDir(
+                listOf(model.normalizedName, model.version, model.downloadFileName)
+                  .joinToString(File.separator)
+              )
     val unzippedDirectoryExists =
       model.isZip &&
-        model.unzipDir.isNotEmpty() &&
-        isFileInExternalFilesDir(
-          listOf(model.normalizedName, model.version, model.unzipDir).joinToString(File.separator)
-        )
-
-    // Will also return true if model is partially downloaded.
+              model.unzipDir.isNotEmpty() &&
+              isFileInExternalFilesDir(
+                listOf(model.normalizedName, model.version, model.unzipDir).joinToString(File.separator)
+              )
     return downloadedFileExists || unzippedDirectoryExists
   }
 }
