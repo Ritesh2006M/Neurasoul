@@ -1,3 +1,5 @@
+// /gallery/ui/llmsingleturn/PromptTemplateConfigs.kt
+
 package com.google.ai.edge.gallery.ui.llmsingleturn
 
 import androidx.compose.ui.graphics.Brush.Companion.linearGradient

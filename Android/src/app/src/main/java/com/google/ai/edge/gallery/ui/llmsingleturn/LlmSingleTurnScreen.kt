@@ -1,3 +1,5 @@
+// /gallery/ui/llmsingleturn/LlmSingleTurnScreen.kt
+
 package com.google.ai.edge.gallery.ui.llmsingleturn
 
 // import androidx.compose.ui.tooling.preview.Preview

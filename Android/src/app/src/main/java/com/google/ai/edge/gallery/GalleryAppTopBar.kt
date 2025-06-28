@@ -1,3 +1,5 @@
+// /gallery/GalleryAppTopBar.kt
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.google.ai.edge.gallery

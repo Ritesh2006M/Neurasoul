@@ -1,3 +1,5 @@
+// /gallery/GalleryApplication.kt
+
 package com.google.ai.edge.gallery
 
 import android.app.Application

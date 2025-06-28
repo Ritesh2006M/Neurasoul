@@ -1,3 +1,5 @@
+// /gallery/ui/theme/Color.kt
+
 package com.google.ai.edge.gallery.ui.theme
 
 import androidx.compose.ui.graphics.Color

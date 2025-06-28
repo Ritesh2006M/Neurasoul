@@ -1,3 +1,5 @@
+// /gallery/ui/theme/Type.kt
+
 package com.google.ai.edge.gallery.ui.theme
 
 import androidx.compose.material3.Typography

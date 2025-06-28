@@ -1,3 +1,5 @@
+// /gallery/ui/home/SettingsDialog.kt
+
 package com.google.ai.edge.gallery.ui.home
 
 import androidx.compose.foundation.border

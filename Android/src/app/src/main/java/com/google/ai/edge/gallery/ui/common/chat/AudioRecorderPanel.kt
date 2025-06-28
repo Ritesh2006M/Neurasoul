@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/AudioRecorderPanel.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 import android.annotation.SuppressLint

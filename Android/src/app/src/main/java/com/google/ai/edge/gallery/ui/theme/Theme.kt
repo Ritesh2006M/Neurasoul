@@ -1,3 +1,5 @@
+// /gallery/ui/theme/Theme.kt
+
 package com.google.ai.edge.gallery.ui.theme
 
 import android.app.Activity

@@ -1,3 +1,5 @@
+// /gallery/ui/llmsingleturn/VerticalSplitView.kt
+
 package com.google.ai.edge.gallery.ui.llmsingleturn
 
 // import androidx.compose.ui.tooling.preview.Preview

@@ -1,3 +1,5 @@
+// /gallery/SettingsSerializer.kt
+
 package com.google.ai.edge.gallery
 
 import androidx.datastore.core.CorruptionException

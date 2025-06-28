@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/MessageBubbleShape.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 import androidx.compose.ui.geometry.CornerRadius

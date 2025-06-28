@@ -1,3 +1,5 @@
+// /gallery/ui/common/MarkdownText.kt
+
 package com.google.ai.edge.gallery.ui.common
 
 import androidx.compose.material3.MaterialTheme

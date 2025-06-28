@@ -1,3 +1,5 @@
+// /gallery/ui/common/ErrorDialog.kt
+
 package com.google.ai.edge.gallery.ui.common
 
 import androidx.compose.foundation.layout.Arrangement

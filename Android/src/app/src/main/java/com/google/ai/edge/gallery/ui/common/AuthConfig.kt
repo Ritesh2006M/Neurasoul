@@ -1,3 +1,5 @@
+// /gallery/ui/common/AuthConfig.kt
+
 package com.google.ai.edge.gallery.ui.common
 
 import androidx.core.net.toUri

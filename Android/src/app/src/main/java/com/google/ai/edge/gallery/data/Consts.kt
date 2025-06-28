@@ -1,3 +1,5 @@
+// /gallery/data/Consts.kt
+
 package com.google.ai.edge.gallery.data
 
 // Keys used to send/receive data to Work.

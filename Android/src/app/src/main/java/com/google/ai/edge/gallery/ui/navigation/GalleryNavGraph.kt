@@ -1,3 +1,5 @@
+// /gallery/ui/navigation/GalleryNavGraph.kt
+
 package com.google.ai.edge.gallery.ui.navigation
 
 import android.util.Log

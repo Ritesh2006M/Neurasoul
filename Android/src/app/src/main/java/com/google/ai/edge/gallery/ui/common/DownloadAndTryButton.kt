@@ -1,3 +1,5 @@
+// /gallery/ui/common/DownloadAndTryButton.kt
+
 package com.google.ai.edge.gallery.ui.common
 
 import android.app.ActivityManager

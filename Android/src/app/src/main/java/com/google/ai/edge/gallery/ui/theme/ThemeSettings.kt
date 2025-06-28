@@ -1,3 +1,5 @@
+// /gallery/ui/theme/ThemeSettings.kt
+
 package com.google.ai.edge.gallery.ui.theme
 
 import androidx.compose.runtime.mutableStateOf

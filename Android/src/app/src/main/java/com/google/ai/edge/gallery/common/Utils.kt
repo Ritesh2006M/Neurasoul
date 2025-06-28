@@ -1,3 +1,5 @@
+// /gallery/common/Utils.kt
+
 package com.google.ai.edge.gallery.common
 
 import android.content.Context

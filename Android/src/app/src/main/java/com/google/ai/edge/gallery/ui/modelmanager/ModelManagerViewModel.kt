@@ -1,3 +1,5 @@
+// /gallery/ui/modelmanager/ModelManagerViewModel.kt
+
 package com.google.ai.edge.gallery.ui.modelmanager
 
 import android.content.Context

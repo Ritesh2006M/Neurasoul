@@ -1,3 +1,5 @@
+// /gallery/GalleryLifecycleProvider.kt
+
 package com.google.ai.edge.gallery
 
 interface AppLifecycleProvider {

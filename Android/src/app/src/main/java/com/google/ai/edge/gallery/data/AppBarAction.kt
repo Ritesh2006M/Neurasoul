@@ -1,3 +1,5 @@
+// /gallery/data/AppBarAction.kt
+
 package com.google.ai.edge.gallery.data
 
 /** Possible action for app bar. */

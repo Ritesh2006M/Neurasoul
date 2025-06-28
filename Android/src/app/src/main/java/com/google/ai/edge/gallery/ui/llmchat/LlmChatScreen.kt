@@ -1,3 +1,5 @@
+// /gallery/ui/llmchat/LlmChatScreen.kt
+
 package com.google.ai.edge.gallery.ui.llmchat
 
 import android.graphics.Bitmap

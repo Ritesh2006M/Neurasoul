@@ -1,3 +1,5 @@
+// /gallery/ui/icon/Deploy.kt
+
 package com.google.ai.edge.gallery.ui.icon
 
 import androidx.compose.ui.graphics.Color

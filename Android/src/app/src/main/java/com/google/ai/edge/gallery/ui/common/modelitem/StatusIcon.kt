@@ -1,3 +1,5 @@
+// /gallery/ui/common/modelitem/StatusIcon.kt
+
 package com.google.ai.edge.gallery.ui.common.modelitem
 
 // import androidx.compose.ui.tooling.preview.Preview

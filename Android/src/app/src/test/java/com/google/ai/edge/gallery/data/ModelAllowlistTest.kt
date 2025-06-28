@@ -1,3 +1,5 @@
+// /gallery/data/ModelAllowlistTest.kt
+
 package com.google.ai.edge.gallery.data
 
 import org.junit.Assert.assertEquals

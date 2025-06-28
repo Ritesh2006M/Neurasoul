@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/ModelDownloadingAnimation.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 // import com.google.ai.edge.gallery.ui.preview.MODEL_TEST1

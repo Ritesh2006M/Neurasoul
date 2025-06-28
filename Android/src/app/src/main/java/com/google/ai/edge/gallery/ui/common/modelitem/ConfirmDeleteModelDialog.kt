@@ -1,3 +1,5 @@
+// /gallery/ui/common/modelitem/ConfirmDeleteModelDialog.kt
+
 package com.google.ai.edge.gallery.ui.common.modelitem
 
 import androidx.compose.material3.AlertDialog

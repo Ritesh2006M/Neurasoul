@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/ChatPanel.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 // import com.google.ai.edge.gallery.ui.preview.PreviewChatModel

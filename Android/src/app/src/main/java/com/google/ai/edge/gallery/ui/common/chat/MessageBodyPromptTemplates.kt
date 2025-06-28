@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/MessageBodyPromptTemplates.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 // import androidx.compose.ui.tooling.preview.Preview

@@ -1,3 +1,5 @@
+// /gallery/ui/llmchat/LlmChatViewModel.kt
+
 package com.google.ai.edge.gallery.ui.llmchat
 
 import android.content.Context

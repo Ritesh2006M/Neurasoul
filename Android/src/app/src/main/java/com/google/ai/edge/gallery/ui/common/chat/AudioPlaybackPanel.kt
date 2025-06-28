@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/AudioPlaybackPanel.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 import android.media.AudioAttributes

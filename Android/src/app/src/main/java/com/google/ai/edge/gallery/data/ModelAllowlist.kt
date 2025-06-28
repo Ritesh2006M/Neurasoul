@@ -1,3 +1,5 @@
+// /gallery/data/ModelAllowlist.kt
+
 package com.google.ai.edge.gallery.data
 
 import com.google.gson.annotations.SerializedName

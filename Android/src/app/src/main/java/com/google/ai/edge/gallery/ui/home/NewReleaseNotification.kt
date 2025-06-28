@@ -1,3 +1,5 @@
+// /gallery/ui/home/NewReleaseNotification.kt
+
 package com.google.ai.edge.gallery.ui.home
 
 import android.util.Log

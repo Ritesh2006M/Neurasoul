@@ -1,3 +1,5 @@
+// /gallery/ui/home/HomeScreen.kt
+
 package com.google.ai.edge.gallery.ui.home
 
 // import androidx.compose.ui.tooling.preview.Preview

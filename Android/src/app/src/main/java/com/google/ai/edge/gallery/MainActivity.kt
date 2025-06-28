@@ -1,3 +1,5 @@
+// /gallery/MainActivity.kt
+
 package com.google.ai.edge.gallery
 
 import android.os.Build

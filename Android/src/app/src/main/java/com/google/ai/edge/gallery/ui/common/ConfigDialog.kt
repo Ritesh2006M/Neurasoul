@@ -1,3 +1,5 @@
+// /gallery/ui/common/ConfigDialog.kt
+
 package com.google.ai.edge.gallery.ui.common
 
 // import androidx.compose.ui.tooling.preview.Preview

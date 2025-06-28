@@ -1,3 +1,5 @@
+// /gallery/data/Config.kt
+
 package com.google.ai.edge.gallery.data
 
 import kotlin.math.abs

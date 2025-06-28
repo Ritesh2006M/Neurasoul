@@ -1,3 +1,5 @@
+// /gallery/ui/llmsingleturn/PromptTemplatesPanel.kt
+
 package com.google.ai.edge.gallery.ui.llmsingleturn
 
 import android.content.ClipData

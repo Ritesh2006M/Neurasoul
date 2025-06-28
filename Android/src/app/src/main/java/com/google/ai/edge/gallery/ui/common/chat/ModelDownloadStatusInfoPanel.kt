@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/ModelDownloadStatusInfoPanel.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 import androidx.compose.animation.AnimatedVisibility

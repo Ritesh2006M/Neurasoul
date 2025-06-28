@@ -1,3 +1,5 @@
+// /gallery/data/Model.kt
+
 package com.google.ai.edge.gallery.data
 
 import android.content.Context

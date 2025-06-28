@@ -1,3 +1,5 @@
+// /gallery/GalleryApp.kt
+
 package com.google.ai.edge.gallery
 
 import androidx.compose.runtime.Composable

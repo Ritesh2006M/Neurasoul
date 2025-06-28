@@ -1,3 +1,5 @@
+// /gallery/ui/modelmanager/ModelManager.kt
+
 package com.google.ai.edge.gallery.ui.modelmanager
 
 // import androidx.compose.ui.tooling.preview.Preview

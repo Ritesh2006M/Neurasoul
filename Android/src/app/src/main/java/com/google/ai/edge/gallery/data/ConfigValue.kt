@@ -1,3 +1,5 @@
+// /gallery/data/ConfigValue.kt
+
 package com.google.ai.edge.gallery.data
 
 // @Serializable(with = ConfigValueSerializer::class)

@@ -1,3 +1,5 @@
+// /gallery/ui/common/Utils.kt
+
 package com.google.ai.edge.gallery.ui.common
 
 import android.Manifest

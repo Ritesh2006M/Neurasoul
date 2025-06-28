@@ -1,3 +1,5 @@
+// /gallery/ui/common/chat/MessageBodyAudioClip.kt
+
 package com.google.ai.edge.gallery.ui.common.chat
 
 import androidx.compose.foundation.layout.padding

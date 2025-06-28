@@ -1,3 +1,5 @@
+// /gallery/di/AppModule.kt
+
 package com.google.ai.edge.gallery.di
 
 import android.content.Context
